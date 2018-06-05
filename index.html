@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>memory</title>
+	<link rel="stylesheet" href="">
+	<style>
+		*{
+			padding: 0;
+			margin: 0;
+			box-sizing:border-box;/* 所有元素全设置为 */
+			-moz-box-sizing:border-box; /* Firefox */
+			-webkit-box-sizing:border-box; /* chorme */
+			outline-style: none;
+			list-style: none;
+		}
+		.container{
+			width: 400px;
+			height: 300px;
+			margin: 80px auto;
+		}
+		.container ul li{
+			width:100px;
+			height: 100px;
+			float: left;
+		}
+		.container ul li .pai .back,
+		.container ul li .pai .front{
+			width:100px;
+			height: 100px;
+		} 
+		.container ul li .pai img{
+			width: 100%;
+			height: 100%;
+		}
+		.btn{
+			margin-top: 20px;
+			margin-left: 37%;
+			width: 100px;
+			border:1px solid #fff;
+			background: #c60023;
+			padding: 10px;
+			color: #fff;
+			cursor: pointer;
+		}
+		.front{
+			z-index: -1;
+			position: absolute;
+			width: 100px;
+		}
+	</style>
+</head>
+<body>
+
+	<div class="container">
+		<ul id="grid">
+		</ul>
+		<button class="btn" id="btn">重新开始</button>
+	</div>
+
+
+	<script src="https://cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+	<script>
+		window.onload=function(){
+			page.init();
+		}
+		var page={
+			init:function(){
+				this.render(6);//一共是六组图片
+				this.clicked();
+				this.bindEvent();
+			},
+			render:function(num){
+				var randArr = [];
+			    for(var j = 0; j < 2;j++){
+				    for (var i = 0; i < num; i++) {
+				    	randArr.push(i)
+				    }
+			    }
+			    this.random(randArr);//随机打乱数组
+			    this.setImg(randArr);
+			},
+			random:function(arr){//随机打乱数组
+					arr=arr.sort(function() {
+	    			return .5 - Math.random();
+				});
+			},
+			setImg:function(arr){
+				var newImg = arr;//按照随机打乱的数组填入图片
+				for (var i = 0; i < newImg.length; i++) {
+					var oli=document.createElement('li');//动态生成li
+					oli.setAttribute('value',newImg[i]);//设置一个value为标志
+					document.getElementById('grid').appendChild(oli);
+					document.getElementsByTagName('li')[i].innerHTML="<div class='pai'><div class='front' ><img src='./img/" + newImg[i] + ".png'></div><div class='back'><img src='./img/f.jpg'></div></div>";
+				}
+			},
+			clicked:function(){
+				var lastValue=null;//上一次点击信息为null，作为初始状态
+				var lastIndex=null;
+				var status=0;
+				var liList=document.getElementsByTagName('li');
+				var front=document.getElementsByClassName('front');
+				var pai=document.getElementsByClassName('pai');
+				for (var i = 0;i<12;i++) {
+					liList[i].index=i;
+					liList[i].value=liList[i].getAttribute('value')
+					liList[i].onclick=function(){
+						var _this=this;
+						if (lastValue===null&&lastIndex===null) {
+							lastValue=_this.value;//并保存上一次点击的value
+							lastIndex=_this.index;
+							front[_this.index].style.zIndex=1;//初始状态下只翻牌
+						}else{
+							front[_this.index].style.zIndex=1;
+							if (_this.index==lastIndex) {
+								return//不能重复点击
+							};
+							if (lastValue==_this.value) {//两次翻牌相同
+								front[lastIndex].style.zIndex=1;//把牌翻过来
+								front[_this.index].style.zIndex=1;//把牌翻过来
+								setTimeout(function(){
+									pai[lastIndex].style.display='none';//0.5秒后取消牌
+									pai[_this.index].style.display='none';
+
+									lastValue=null;//回归初始状态
+									lastIndex=null;
+								},500);
+								status++;
+							}else{
+								front[_this.index].style.zIndex=1;
+								setTimeout(function(){
+										front[lastIndex].style.zIndex=-1;//0.5秒后把牌翻回去
+										front[_this.index].style.zIndex=-1;
+										lastValue = null;//回归初始状态
+										lastIndex = null;
+								},500);
+							}
+						}
+						if (status===6) {
+							alert('成功完成！')
+						}
+					}
+
+				};
+			},
+			reSet:function(){
+				window.location.reload();
+			},
+			bindEvent:function(){
+				document.getElementById('btn').onclick=this.reSet;
+			}
+		}
+	</script>
+</body>
+</html>
